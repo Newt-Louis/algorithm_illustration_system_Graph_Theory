@@ -7,10 +7,17 @@ class Graph:
             'D': (250, 250),
             'E': (400, 250),
         }
-        self.edges = {
+        self.unweighted_edges = {
             'A': ['B', 'C'],
             'B': ['A', 'D'],
             'C': ['A', 'D'],
             'D': ['B', 'C', 'E'],
             'E': ['D']
+        }
+        self.weighted_edges = {
+            'A': {'B': 10, 'C': 3},
+            'B': {'A': 10, 'D': 2},
+            'C': {'A': 3, 'D': 8, 'E': 20},
+            'D': {'B': 2, 'C': 8, 'E': 4},
+            'E': {'C': 20, 'D': 4}
         }
