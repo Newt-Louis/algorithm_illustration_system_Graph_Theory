@@ -2,9 +2,9 @@ import tkinter as tk
 from ui.MainMenuView import MainMenuView
 from ui.VisualizerView import VisualizerView
 from algorithms.BFSStrategy import BFSStrategy
+from algorithms.DFSStrategy import DFSStrategy
 
 
-# from algorithms.dfs_strategy import DFSStrategy # (Khi bạn thêm sau)
 
 class App(tk.Tk):
     def __init__(self):
@@ -19,7 +19,7 @@ class App(tk.Tk):
         # Key: tên hiển thị, Value: LỚP chiến lược
         self.strategies = {
             "BFS": BFSStrategy,
-            # "DFS": DFSStrategy, # (Khi bạn thêm sau)
+            "DFS": DFSStrategy,
             # "Dijkstra": DijkstraStrategy,
         }
 

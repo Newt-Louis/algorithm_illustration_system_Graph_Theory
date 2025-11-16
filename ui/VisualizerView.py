@@ -1,13 +1,14 @@
 # ui/VisualizerView.py
 import tkinter as tk
+from algorithms.IBaseAlgorithmStrategy import IBaseAlgorithmStrategy
 from core.Graph import Graph
 
 
 class VisualizerView(tk.Frame):
-    def __init__(self, parent, controller, strategy):
+    def __init__(self, parent, controller, strategy: IBaseAlgorithmStrategy):
         super().__init__(parent)
         self.controller = controller
-        self.strategy = strategy  # Đối tượng chiến lược (vd: BFSStrategy)
+        self.strategy = strategy  # Đối tượng chiến lược
 
         # --- Dữ liệu Logic ---
         self.graph = Graph()  # Tải đồ thị mẫu
@@ -154,7 +155,7 @@ class VisualizerView(tk.Frame):
                 # ('explore', from_node, to_node, color)
                 # Xử lý key (A,B) hay (B,A) đều được
                 edge_key = tuple(sorted((step[1], step[2])))
-                edge_colors[edge_key] = step[2]
+                edge_colors[edge_key] = step[3]
 
         # 4. Áp dụng các màu đã tính toán vào canvas
         for node, color in node_colors.items():
