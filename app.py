@@ -13,7 +13,6 @@ class App(tk.Tk):
         # Lưu trữ frame đang hiển thị
         self._current_view = None
 
-        # Đăng ký tất cả các chiến lược thuật toán của bạn
         # Key: tên hiển thị, Value: LỚP chiến lược
         self.strategies = {
             "BFS": BFSStrategy,

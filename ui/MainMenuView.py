@@ -25,7 +25,6 @@ class MainMenuView(tk.Frame):
                 font=button_font,
                 width=20,
                 height=2,
-                # 'lambda' rất quan trọng để truyền đúng tên
                 command=lambda name=strategy_name:
                     self.controller.show_visualizer(name)
             )
