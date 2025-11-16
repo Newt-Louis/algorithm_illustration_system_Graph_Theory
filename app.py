@@ -1,7 +1,7 @@
 import tkinter as tk
 from ui.MainMenuView import MainMenuView
 from ui.VisualizerView import VisualizerView
-from algorithms import BFSStrategy,DFSStrategy,DijkstraStrategy
+from algorithms import BFSStrategy,DFSStrategy,DijkstraStrategy,PrimStrategy,KruskalStrategy
 
 
 class App(tk.Tk):
@@ -19,6 +19,8 @@ class App(tk.Tk):
             "BFS": BFSStrategy,
             "DFS": DFSStrategy,
             "Dijkstra": DijkstraStrategy,
+            "Prim": PrimStrategy,
+            "Kruskal": KruskalStrategy,
         }
 
         # Bắt đầu bằng cách hiển thị menu chính
