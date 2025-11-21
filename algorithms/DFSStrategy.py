@@ -34,21 +34,28 @@ class DFSStrategy(IBaseAlgorithmStrategy):
         # 2. Tính toán trạng thái màu sắc TÍCH LŨY đến bước 'index'
         node_colors = {}
         edge_colors = {}
+        visited = set()
+        stack = []
 
         for i in range(index + 1):
             step = all_steps[i]
             action = step[0]
 
-            # 3. "PHIÊN DỊCH" CÁC BƯỚC LOGIC CỦA DFS RA MÀU
+            # 3. ĐƯA CÁC BƯỚC LOGIC CỦA DFS RA MÀU
             if action == 'visit':
                 # ('visit', node)
                 node = step[1]
                 node_colors[node] = 'orange'  # DFS 'visit' -> màu cam
+                visited.add(node)
+                stack.append(node)
 
             elif action == 'process':
                 # ('process', node)
                 node = step[1]
                 node_colors[node] = 'gray'  # DFS 'process' -> màu xám
+
+                if stack and stack[-1] == node:
+                    stack.pop()
 
             elif action == 'explore':
                 # ('explore', from_node, to_node)
@@ -63,6 +70,20 @@ class DFSStrategy(IBaseAlgorithmStrategy):
         for edge_key, color in edge_colors.items():
             if edge_key in edge_ui:
                 canvas.itemconfig(edge_ui[edge_key], fill=color, width=3)
+
+        canvas.delete("info_text")
+
+        visited_text = "Visited: " + ", ".join(sorted(visited))
+        stack_text = "Stack: " + " → ".join(stack)  # hiển thị theo thứ tự push
+
+        canvas.create_text(
+            20, 20, anchor="w", text=visited_text,
+            font=("Helvetica", 14, "bold"), fill="blue", tags="info_text"
+        )
+        canvas.create_text(
+            20, 50, anchor="w", text=stack_text,
+            font=("Helvetica", 14, "bold"), fill="purple", tags="info_text"
+        )
 
     # noinspection PyMethodMayBeStatic
     def _draw_base_graph(self, canvas, graph):
