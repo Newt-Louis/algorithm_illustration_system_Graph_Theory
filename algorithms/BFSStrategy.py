@@ -34,6 +34,17 @@ class BFSStrategy(IBaseAlgorithmStrategy):
         # 2. Tính toán trạng thái màu sắc/text TÍCH LŨY đến bước 'index'
         node_colors = {}
         edge_colors = {}
+        visited = set()
+        discovered = set()
+        queue = deque()
+
+        start_node = None
+        if all_steps and all_steps[0][0] == 'visit':
+            start_node = all_steps[0][1]
+        if start_node is not None:
+            # Khởi tạo đúng một lần: queue chứa start_node
+            queue.append(start_node)
+            discovered.add(start_node)
 
         for i in range(index + 1):
             step = all_steps[i]
@@ -44,16 +55,26 @@ class BFSStrategy(IBaseAlgorithmStrategy):
                 # ('visit', node)
                 node = step[1]
                 node_colors[node] = 'orange'  # BFS 'visit' -> màu cam
+                visited.add(node)
 
             elif action == 'process':
                 # ('process', node)
                 node = step[1]
                 node_colors[node] = 'gray'  # BFS 'process' -> màu xám
+                if queue and queue[0] == node:
+                    queue.popleft()
 
             elif action == 'explore':
                 # ('explore', from_node, to_node)
                 edge_key = tuple(sorted((step[1], step[2])))
                 edge_colors[edge_key] = 'red'  # BFS 'explore' -> màu đỏ
+                to_node = step[2]
+                if to_node not in discovered:
+                    discovered.add(to_node)
+                    queue.append(to_node)
+
+            elif action == 'finish':
+                queue.clear()
 
         # 4. Áp dụng các màu đã tính toán lên canvas
         for node, color in node_colors.items():
@@ -63,6 +84,20 @@ class BFSStrategy(IBaseAlgorithmStrategy):
         for edge_key, color in edge_colors.items():
             if edge_key in edge_ui:
                 canvas.itemconfig(edge_ui[edge_key], fill=color, width=3)
+
+        canvas.delete("info_text")
+
+        visited_text = "Visited: " + ", ".join(sorted(visited))
+        queue_text = "Queue: " + ", ".join(reversed(queue))
+
+        canvas.create_text(
+            20, 20, anchor="w", text=visited_text,
+            font=("Helvetica", 14, "bold"), fill="blue", tags="info_text"
+        )
+        canvas.create_text(
+            20, 50, anchor="w", text=queue_text,
+            font=("Helvetica", 14, "bold"), fill="green", tags="info_text"
+        )
 
     # noinspection PyMethodMayBeStatic
     def _draw_base_graph(self, canvas, graph):

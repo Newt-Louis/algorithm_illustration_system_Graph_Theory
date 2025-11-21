@@ -1,4 +1,3 @@
-# ui/visualizer_view.py
 import tkinter as tk
 from core.Graph import Graph
 from algorithms.IBaseAlgorithmStrategy import IBaseAlgorithmStrategy
@@ -64,7 +63,7 @@ class VisualizerView(tk.Frame):
         if not self.all_steps:
             return
 
-        # 1. Yêu cầu chiến lược vẽ
+        # Yêu cầu strategy class vẽ
         self.strategy.render_step(
             self.canvas,
             self.graph,
@@ -72,7 +71,7 @@ class VisualizerView(tk.Frame):
             self.current_step_index
         )
 
-        # 2. Cập nhật trạng thái nút (Prev/Next) và nhãn đếm
+        # Cập nhật trạng thái nút (Prev/Next) và nhãn đếm
         self.update_button_states()
 
     def on_back(self):

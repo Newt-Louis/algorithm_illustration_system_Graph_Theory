@@ -8,12 +8,12 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Minh họa Thuật toán Đồ thị")
-        self.geometry("800x600")
+        self.geometry("1000x800")
 
         # Lưu trữ frame đang hiển thị
         self._current_view = None
 
-        # Key: tên hiển thị, Value: LỚP chiến lược
+        # Key: tên hiển thị, Value: Strategy class
         self.strategies = {
             "BFS": BFSStrategy,
             "DFS": DFSStrategy,
@@ -22,7 +22,7 @@ class App(tk.Tk):
             "Kruskal": KruskalStrategy,
         }
 
-        # Bắt đầu bằng cách hiển thị menu chính
+        # Hiển thị menu chính
         self.show_main_menu()
 
     def show_main_menu(self):
@@ -39,7 +39,7 @@ class App(tk.Tk):
         if self._current_view:
             self._current_view.destroy()
 
-        # Lấy LỚP chiến lược từ tên
+        # Lấy strategy class từ tên
         StrategyClass = self.strategies.get(strategy_name)
 
         if StrategyClass:
