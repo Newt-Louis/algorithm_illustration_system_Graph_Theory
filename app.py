@@ -8,7 +8,7 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Minh họa Thuật toán Đồ thị")
-        self.geometry("1000x800")
+        self.geometry("800x600")
 
         # Lưu trữ frame đang hiển thị
         self._current_view = None
