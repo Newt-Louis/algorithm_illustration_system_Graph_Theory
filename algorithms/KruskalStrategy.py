@@ -35,7 +35,7 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
 
         # 3. Khởi tạo cấu trúc Union-Find
         # Ban đầu, mỗi nút là 'cha' của chính nó (mỗi nút là 1 tập riêng)
-        parent_map = {node: node for node in graph.nodes}
+        parent_map = {node: node for node in graph.weighted_nodes}
 
         # 4. Duyệt qua các cạnh đã sắp xếp
         for weight, node1, node2 in all_edges:
@@ -119,11 +119,11 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
 
         # Dùng dữ liệu CÓ trọng số
         for node, neighbors in graph.weighted_edges.items():
-            x1, y1 = graph.nodes[node]
+            x1, y1 = graph.weighted_nodes[node]
             for neighbor, weight in neighbors.items():
                 key = tuple(sorted((node, neighbor)))
                 if key not in edge_ui:
-                    x2, y2 = graph.nodes[neighbor]
+                    x2, y2 = graph.weighted_nodes[neighbor]
                     edge_id = canvas.create_line(
                         x1, y1, x2, y2, fill=default_color, width=2
                     )
@@ -140,7 +140,7 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
                     )
 
         # Vẽ các nút (Nodes)
-        for node, (x, y) in graph.nodes.items():
+        for node, (x, y) in graph.weighted_nodes.items():
             oval_id = canvas.create_oval(
                 x - node_radius, y - node_radius,
                 x + node_radius, y + node_radius,

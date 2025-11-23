@@ -4,7 +4,7 @@ import heapq
 class DijkstraStrategy(IBaseAlgorithmStrategy):
     def run(self, graph, start_node):
         steps = []
-        distances = {node: float('inf') for node in graph.dijkstra_nodes}
+        distances = {node: float('inf') for node in graph.weighted_nodes}
         parent = {}
         pq = []
         visited = set()
@@ -21,7 +21,7 @@ class DijkstraStrategy(IBaseAlgorithmStrategy):
             visited.add(current_node)
             steps.append(('visit', current_node))
 
-            for neighbor, weight in graph.dijkstra_weighted_edges.get(current_node, {}).items():
+            for neighbor, weight in graph.weighted_edges.get(current_node, {}).items():
                 if neighbor not in visited:
                     steps.append(('explore', current_node, neighbor))
                     new_distance = current_distance + weight
@@ -107,13 +107,13 @@ class DijkstraStrategy(IBaseAlgorithmStrategy):
         node_radius = 20
         default_color = 'lightgray'
 
-        for node, neighbors in graph.dijkstra_weighted_edges.items():
-            x1, y1 = graph.dijkstra_nodes[node]
+        for node, neighbors in graph.weighted_edges.items():
+            x1, y1 = graph.weighted_nodes[node]
             # 'neighbors' là một dict: {'B': 10, 'C': 3}
             for neighbor, weight in neighbors.items():
                 key = tuple(sorted((node, neighbor)))
                 if key not in edge_ui:
-                    x2, y2 = graph.dijkstra_nodes[neighbor]
+                    x2, y2 = graph.weighted_nodes[neighbor]
                     edge_id = canvas.create_line(
                         x1, y1, x2, y2, fill=default_color, width=2
                     )
@@ -130,7 +130,7 @@ class DijkstraStrategy(IBaseAlgorithmStrategy):
                     )
 
         # Vẽ các nút (Nodes)
-        for node, (x, y) in graph.dijkstra_nodes.items():
+        for node, (x, y) in graph.weighted_nodes.items():
             oval_id = canvas.create_oval(
                 x - node_radius, y - node_radius,
                 x + node_radius, y + node_radius,
