@@ -22,7 +22,7 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
     def run(self, graph, start_node):
         steps = []
 
-        # 1. Tạo một danh sách TẤT CẢ các cạnh: (weight, from, to)
+        # Tạo một danh sách TẤT CẢ các cạnh: (weight, from, to)
         all_edges = []
         for node, neighbors in graph.weighted_edges.items():
             for neighbor, weight in neighbors.items():
@@ -30,52 +30,54 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
                 if node < neighbor:
                     all_edges.append((weight, node, neighbor))
 
-        # 2. Sắp xếp tất cả các cạnh theo trọng số (weight) tăng dần
+        # Sắp xếp tất cả các cạnh theo trọng số (weight) tăng dần
         all_edges.sort()
 
-        # 3. Khởi tạo cấu trúc Union-Find
+        # Khởi tạo cấu trúc Union-Find
         # Ban đầu, mỗi nút là 'cha' của chính nó (mỗi nút là 1 tập riêng)
         parent_map = {node: node for node in graph.weighted_nodes}
 
-        # 4. Duyệt qua các cạnh đã sắp xếp
+        # Duyệt qua các cạnh đã sắp xếp
         for weight, node1, node2 in all_edges:
-
-            # Bước logic: ('test_edge', from, to)
-            # Cạnh đang được xem xét
+            # Cạnh đang được xét
             steps.append(('test_edge', node1, node2))
-
-            # 5. Dùng Union-Find để kiểm tra chu trình
+            # Dùng Union-Find để kiểm tra chu trình
             # Gộp 2 tập chứa node1 và node2.
             # Nếu chúng đã ở chung 1 tập, _union sẽ trả về False.
             if self._union(parent_map, node1, node2):
-                # KHÔNG tạo chu trình -> Thêm vào MST
-                # Bước logic: ('add_edge_to_mst', from, to)
+                # ('add_edge_to_mst', from, to)
                 steps.append(('add_edge_to_mst', node1, node2))
-                # Bước logic: ('add_node_to_mst', node)
+                # ('add_node_to_mst', node)
                 steps.append(('add_node_to_mst', node1))
                 steps.append(('add_node_to_mst', node2))
             else:
-                # TẠO chu trình -> Bỏ qua cạnh này
-                # Bước logic: ('discard_edge', from, to)
+                # ('discard_edge', from, to)
                 steps.append(('discard_edge', node1, node2))
 
         return steps
 
     def render_step(self, canvas, graph, all_steps, index):
-        # 1. Vẽ đồ thị cơ sở (màu xám, có trọng số)
+        # Vẽ đồ thị cơ sở (màu xám, có trọng số)
         node_ui, edge_ui, text_ui = self._draw_base_graph(canvas, graph)
 
-        # 2. Tính toán trạng thái TÍCH LŨY đến bước 'index'
+        # Tính toán trạng thái TÍCH LŨY đến bước 'index'
         node_colors = {}
         edge_colors = {}
         mst_edges_so_far = set()  # Dùng set này để theo dõi các cạnh đã vào MST
+        parent_map = {node: node for node in graph.weighted_nodes}  # Union-Find parent
+        edge_list = [] # danh sách cạnh
+
+        # Hàm find để dựng lại tập hợp
+        def find(node):
+            while parent_map[node] != node:
+                node = parent_map[node]
+            return node
 
         for i in range(index + 1):
             step = all_steps[i]
             action = step[0]
 
-            # 3. "PHIÊN DỊCH" CÁC BƯỚC LOGIC CỦA KRUSKAL
-
+            # CÁC BƯỚC LOGIC CỦA KRUSKAL
             if action == 'add_node_to_mst':
                 # ('add_node_to_mst', node)
                 node = step[1]
@@ -86,20 +88,25 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
                 edge_key = tuple(sorted((step[1], step[2])))
                 edge_colors[edge_key] = 'green'  # Cạnh đã vào MST
                 mst_edges_so_far.add(edge_key)
+                root1, root2 = find(step[1]), find(step[2])
+                if root1 != root2:
+                    parent_map[root2] = root1
 
             elif action == 'test_edge':
                 # ('test_edge', from, to)
                 edge_key = tuple(sorted((step[1], step[2])))
+                edge_list.append(edge_key)
                 if edge_key not in mst_edges_so_far:
                     edge_colors[edge_key] = 'red'  # Cạnh đang được kiểm tra
 
             elif action == 'discard_edge':
                 # ('discard_edge', from, to)
                 edge_key = tuple(sorted((step[1], step[2])))
+                edge_list.append(edge_key)
                 if edge_key not in mst_edges_so_far:
                     edge_colors[edge_key] = 'gray'  # Cạnh bị loại (tạo chu trình)
 
-        # 4. Áp dụng các màu đã tính toán lên canvas
+        # Áp dụng các màu đã tính toán lên canvas
         for node, color in node_colors.items():
             if node in node_ui:
                 canvas.itemconfig(node_ui[node], fill=color)
@@ -107,6 +114,31 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
         for edge_key, color in edge_colors.items():
             if edge_key in edge_ui:
                 canvas.itemconfig(edge_ui[edge_key], fill=color, width=3)
+
+        canvas.delete("info_text")
+        canvas_height = 600
+        edge_list_text = "Edge List: " + ", ".join([f"{u}-{v}" for u, v in edge_list])
+        parent_text = "Parent: " + ", ".join([f"{node}←{par}" for node, par in parent_map.items()])
+        # dựng lại các tập hợp từ parent_map
+        sets = {}
+        for node in parent_map:
+            root = find(node)
+            sets.setdefault(root, []).append(node)
+        sets_text = "Sets: " + ", ".join(["{" + ",".join(sorted(members)) + "}" for members in sets.values()])
+        mst_text = "MST Edges: " + ", ".join([f"{u}-{v}" for u, v in mst_edges_so_far])
+
+        canvas.create_text(20, canvas_height-120, anchor="w",
+                           text=edge_list_text, font=("Helvetica", 14, "bold"),
+                           fill="orange", tags="info_text")
+        canvas.create_text(20, canvas_height-150, anchor="w",
+                           text=sets_text, font=("Helvetica", 14, "bold"),
+                           fill="blue", tags="info_text")
+        canvas.create_text(20, canvas_height-180, anchor="w",
+                           text=parent_text, font=("Helvetica", 14, "bold"),
+                           fill="brown", tags="info_text")
+        canvas.create_text(20, canvas_height-210, anchor="w",
+                           text=mst_text, font=("Helvetica", 14, "bold"),
+                           fill="green", tags="info_text")
 
     # noinspection PyMethodMayBeStatic
     def _draw_base_graph(self, canvas, graph):
