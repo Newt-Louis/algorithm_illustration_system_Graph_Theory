@@ -1,2 +1,5 @@
 .venv
 .idea
+main.spec
+dist
+build
