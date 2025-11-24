@@ -9,43 +9,43 @@ class PrimStrategy(IBaseAlgorithmStrategy):
         # Hàng đợi ưu tiên, lưu các cạnh: (weight, from_node, to_node)
         pq = []
 
-        # Set các nút đã có trong Cây bao trùm (MST)
+        # Set các đỉnh đã có trong Cây bao trùm (MST = Minimum Spanning Tree)
         nodes_in_mst = set()
-        # 1. Thêm nút bắt đầu vào MST
+        # Thêm đỉnh bắt đầu vào MST
         nodes_in_mst.add(start_node)
         steps.append(('add_node_to_mst', start_node))
 
-        # 2. Thêm tất cả các cạnh kề với nút bắt đầu vào hàng đợi (PQ)
+        # Thêm tất cả các cạnh kề với đỉnh bắt đầu vào hàng đợi (PQ)
         for neighbor, weight in graph.weighted_edges.get(start_node, {}).items():
             heapq.heappush(pq, (weight, start_node, neighbor))
             # 'explore_edge': Cạnh được đưa vào PQ để xem xét
             steps.append(('explore_edge', start_node, neighbor))
 
-        # 3. Bắt đầu vòng lặp chính
+        # Bắt đầu vòng lặp chính
         while pq:
-            # 4. Lấy cạnh có trọng số nhỏ nhất ra khỏi PQ
+            # Lấy cạnh có trọng số nhỏ nhất ra khỏi PQ
             weight, from_node, to_node = heapq.heappop(pq)
 
             # 'test_edge': Cạnh đang được kiểm tra
             steps.append(('test_edge', from_node, to_node))
 
-            # 5. Kiểm tra: Nếu nút 'to_node' đã ở trong MST,
+            # Kiểm tra: Nếu đỉnh 'to_node' đã ở trong MST,
             #    cạnh này tạo ra chu trình -> BỎ QUA
             if to_node in nodes_in_mst:
                 # 'discard_edge': Cạnh bị loại bỏ
                 steps.append(('discard_edge', from_node, to_node))
                 continue
 
-            # 6. (THÀNH CÔNG) Nếu 'to_node' là nút mới:
-            #    Thêm nút mới vào MST
+            # (THÀNH CÔNG) Nếu 'to_node' là đỉnh mới:
+            #    Thêm đỉnh mới vào MST
             nodes_in_mst.add(to_node)
             steps.append(('add_node_to_mst', to_node))
             #    Thêm cạnh này vào MST
             # 'add_edge_to_mst': Cạnh được xác nhận là thuộc MST
             steps.append(('add_edge_to_mst', from_node, to_node))
 
-            # 7. Thêm tất cả các cạnh kề với nút 'to_node' (nút mới)
-            #    vào PQ để xem xét, miễn là nó không dẫn đến nút đã ở trong MST
+            # Thêm tất cả các cạnh kề với đỉnh 'to_node' (đỉnh mới)
+            #    vào PQ để xem xét, miễn là nó không dẫn đến đỉnh đã ở trong MST
             for neighbor, weight in graph.weighted_edges.get(to_node, {}).items():
                 if neighbor not in nodes_in_mst:
                     heapq.heappush(pq, (weight, to_node, neighbor))
@@ -54,31 +54,34 @@ class PrimStrategy(IBaseAlgorithmStrategy):
         return steps
 
     def render_step(self, canvas, graph, all_steps, index):
-        # 1. Vẽ đồ thị cơ sở (màu xám, có trọng số)
+        # Vẽ đồ thị cơ sở (màu xám, có trọng số)
         node_ui, edge_ui, text_ui = self._draw_base_graph(canvas, graph)
 
-        # 2. Tính toán trạng thái TÍCH LŨY đến bước 'index'
+        # Tính toán trạng thái TÍCH LŨY đến bước 'index'
         node_colors = {}
         edge_colors = {}
-        # Dùng set này để theo dõi các cạnh đã vào MST
         mst_edges_so_far = set()
+        visited = set()
+        pq = []
+        parent = {}
 
         for i in range(index + 1):
             step = all_steps[i]
             action = step[0]
 
-            # 3. "PHIÊN DỊCH" CÁC BƯỚC LOGIC CỦA PRIM
-
+            # Logic của Prim
             if action == 'add_node_to_mst':
                 # ('add_node_to_mst', node)
                 node = step[1]
-                node_colors[node] = 'lightgreen'  # Nút đã vào MST
+                node_colors[node] = 'lightgreen'  # Đỉnh đã vào MST
+                visited.add(node)
 
             elif action == 'add_edge_to_mst':
                 # ('add_edge_to_mst', from, to)
                 edge_key = tuple(sorted((step[1], step[2])))
                 edge_colors[edge_key] = 'green'  # Cạnh đã vào MST
                 mst_edges_so_far.add(edge_key)
+                parent[step[2]] = step[1]
 
             elif action == 'explore_edge':
                 # ('explore_edge', from, to)
@@ -86,6 +89,7 @@ class PrimStrategy(IBaseAlgorithmStrategy):
                 # Chỉ tô màu nếu nó chưa phải là cạnh MST
                 if edge_key not in mst_edges_so_far:
                     edge_colors[edge_key] = 'orange'  # Cạnh nằm trong PQ
+                    pq.append((step[1], step[2]))
 
             elif action == 'test_edge':
                 # ('test_edge', from, to)
@@ -99,7 +103,7 @@ class PrimStrategy(IBaseAlgorithmStrategy):
                 if edge_key not in mst_edges_so_far:
                     edge_colors[edge_key] = 'gray'  # Cạnh bị loại (tạo chu trình)
 
-        # 4. Áp dụng các màu đã tính toán lên canvas
+        # Áp dụng các màu đã tính toán lên canvas
         for node, color in node_colors.items():
             if node in node_ui:
                 canvas.itemconfig(node_ui[node], fill=color)
@@ -107,6 +111,26 @@ class PrimStrategy(IBaseAlgorithmStrategy):
         for edge_key, color in edge_colors.items():
             if edge_key in edge_ui:
                 canvas.itemconfig(edge_ui[edge_key], fill=color, width=3)
+
+        canvas.delete("info_text")
+        canvas_height = 600
+        visited_text = "Visited: " + ", ".join(sorted(visited))
+        pq_text = "Priority Queue: " + ", ".join([f"{u}-{v}" for u, v in pq])
+        parent_text = "Parent: " + ", ".join([f"{child}←{par}" for child, par in parent.items()])
+        mst_text = "MST Edges: " + ", ".join([f"{u}-{v}" for u, v in mst_edges_so_far])
+
+        canvas.create_text(20, canvas_height - 120, anchor="w",
+                           text=visited_text, font=("Helvetica", 14, "bold"),
+                           fill="blue", tags="info_text")
+        canvas.create_text(20, canvas_height - 150, anchor="w",
+                           text=pq_text, font=("Helvetica", 14, "bold"),
+                           fill="orange", tags="info_text")
+        canvas.create_text(20, canvas_height - 180, anchor="w",
+                           text=parent_text, font=("Helvetica", 14, "bold"),
+                           fill="brown", tags="info_text")
+        canvas.create_text(20, canvas_height - 210, anchor="w",
+                           text=mst_text, font=("Helvetica", 14, "bold"),
+                           fill="green", tags="info_text")
 
     # noinspection PyMethodMayBeStatic
     def _draw_base_graph(self, canvas, graph):
@@ -117,7 +141,7 @@ class PrimStrategy(IBaseAlgorithmStrategy):
         node_radius = 20
         default_color = 'lightgray'
 
-        # Dùng dữ liệu CÓ trọng số
+        # Dùng dữ liệu có trọng số
         for node, neighbors in graph.weighted_edges.items():
             x1, y1 = graph.weighted_nodes[node]
             for neighbor, weight in neighbors.items():
@@ -139,7 +163,7 @@ class PrimStrategy(IBaseAlgorithmStrategy):
                         fill='blue'
                     )
 
-        # Vẽ các nút (Nodes)
+        # Vẽ các đỉnh (Nodes)
         for node, (x, y) in graph.weighted_nodes.items():
             oval_id = canvas.create_oval(
                 x - node_radius, y - node_radius,
