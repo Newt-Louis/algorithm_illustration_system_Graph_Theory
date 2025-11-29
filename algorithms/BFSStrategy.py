@@ -18,11 +18,11 @@ class BFSStrategy(IBaseAlgorithmStrategy):
 
             for neighbor in graph.unweighted_edges.get(current_node, []):
                 if neighbor not in visited:
-                    visited.add(neighbor)
-                    queue.append(neighbor)
                     # ('explore', from_node, to_node, highlight_color)
                     steps.append(('explore', current_node, neighbor, 'red'))
                     steps.append(('visit', neighbor, 'orange'))
+                    visited.add(neighbor)
+                    queue.append(neighbor)
 
         steps.append(('finish', None, None))  # Báo hiệu kết thúc
         return steps
@@ -46,10 +46,11 @@ class BFSStrategy(IBaseAlgorithmStrategy):
             queue.append(start_node)
             discovered.add(start_node)
 
-        for i in range(index + 1):
+        for i in range(index):
             step = all_steps[i]
             action = step[0]
-
+            if i >= 5:
+                print(step)
             # 3. "PHIÊN DỊCH" CÁC BƯỚC LOGIC CỦA BFS RA MÀU
             if action == 'visit':
                 # ('visit', node)
