@@ -49,9 +49,8 @@ class BFSStrategy(IBaseAlgorithmStrategy):
         for i in range(index):
             step = all_steps[i]
             action = step[0]
-            if i >= 5:
-                print(step)
-            # 3. "PHIÊN DỊCH" CÁC BƯỚC LOGIC CỦA BFS RA MÀU
+
+            # 3. CÁC BƯỚC LOGIC CỦA BFS RA MÀU
             if action == 'visit':
                 # ('visit', node)
                 node = step[1]
