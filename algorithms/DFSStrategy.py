@@ -5,27 +5,29 @@ class DFSStrategy(IBaseAlgorithmStrategy):
     def run(self,graph,start_node):
         steps = []
         visited = set()
-        self._dfs_recursive(graph, start_node, visited, steps)
+        visited.add(start_node)
+        stack = [start_node]
+        steps.append(('visit', start_node))
+
+        while stack:
+            current_node = stack[-1]
+            found_new_neighbor = False
+            for neighbor in graph.unweighted_edges.get(current_node, []):
+                if neighbor not in visited:
+                    # Bước mở rộng đỉnh (cạnh màu đỏ)
+                    steps.append(('explore', current_node, neighbor))
+                    # Đánh dấu đỉnh là đã thăm (màu cam)
+                    steps.append(('visit', neighbor))
+                    visited.add(neighbor)
+                    stack.append(neighbor)
+                    found_new_neighbor = True
+                    break
+            # Nếu không có đỉnh liền kề thì lấy đỉnh cũ đã mở rộng
+            if not found_new_neighbor:
+                node_done = stack.pop()
+                # Đánh dấu đã xử lý rồi (màu xám)
+                steps.append(('process', node_done))
         return steps
-
-    def _dfs_recursive(self, graph, current_node, visited, steps):
-        # 1. Đánh dấu nút là đã thăm (visit)
-        visited.add(current_node)
-        # Thêm bước 'visit' (sẽ được tô màu cam)
-        steps.append(('visit', current_node))
-
-        # 2. Khám phá (explore) các hàng xóm
-        for neighbor in graph.unweighted_edges.get(current_node, []):
-            if neighbor not in visited:
-                # Thêm bước 'explore' (cạnh sẽ được tô màu đỏ)
-                steps.append(('explore', current_node, neighbor))
-                # Gọi đệ quy
-                self._dfs_recursive(graph, neighbor, visited, steps)
-
-        # 3. Sau khi đã thăm xong tất cả các nhánh con,
-        #    đánh dấu nút này là đã xử lý xong (process)
-        # Thêm bước 'process' (sẽ được tô màu xám)
-        steps.append(('process', current_node))
 
     def render_step(self, canvas, graph, all_steps, index):
         # 1. Vẽ đồ thị cơ sở (màu xám)
