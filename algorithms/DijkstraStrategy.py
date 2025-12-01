@@ -1,8 +1,9 @@
+from core.Graph import Graph
 from .IBaseAlgorithmStrategy import IBaseAlgorithmStrategy
 import heapq
 
 class DijkstraStrategy(IBaseAlgorithmStrategy):
-    def run(self, graph, start_node):
+    def run(self, graph: Graph, start_node: str):
         steps = []
         distances = {node: float('inf') for node in graph.weighted_nodes}
         parent = {}
