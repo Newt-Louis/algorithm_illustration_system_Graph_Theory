@@ -87,7 +87,7 @@ class DijkstraStrategy(IBaseAlgorithmStrategy):
         pq_text = "Priority Queue: " + ", ".join([f"{n}({d})" for d, n in sorted(pq)])
         dist_text = "Distances: " + ", ".join(
             [f"{n}={distances[n] if distances[n] != float('inf') else '∞'}" for n in sorted(distances)])
-        parent_text = "Parent: " + ", ".join([f"{child}←{par}" for child, par in parent.items()])
+        parent_text = "Parent: " + ", ".join([f"{par}→{child}" for child, par in parent.items()])
 
         canvas_height = 600
         canvas.create_text(20, canvas_height-120, anchor="w", text=visited_text,
