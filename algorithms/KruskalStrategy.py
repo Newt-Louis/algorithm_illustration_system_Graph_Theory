@@ -4,7 +4,7 @@ from .IBaseAlgorithmStrategy import IBaseAlgorithmStrategy
 class KruskalStrategy(IBaseAlgorithmStrategy):
 
     def _find(self, parent_map, node):
-        """Hàm 'Find' (Tìm): Tìm nút đại diện cho tập hợp chứa 'node'."""
+        """Hàm 'Find' (Tìm): Tìm đỉnh đại diện cho tập hợp chứa 'node'."""
         if parent_map[node] == node:
             return node
         # Đệ quy tìm gốc
@@ -34,7 +34,7 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
         all_edges.sort()
 
         # Khởi tạo cấu trúc Union-Find
-        # Ban đầu, mỗi nút là 'cha' của chính nó (mỗi nút là 1 tập riêng)
+        # Ban đầu, mỗi đỉnh là 'cha' của chính nó (mỗi đỉnh là 1 tập riêng)
         parent_map = {node: node for node in graph.weighted_nodes}
 
         # Duyệt qua các cạnh đã sắp xếp
@@ -81,7 +81,7 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
             if action == 'add_node_to_mst':
                 # ('add_node_to_mst', node)
                 node = step[1]
-                node_colors[node] = 'lightgreen'  # Nút đã vào MST
+                node_colors[node] = 'lightgreen'  # đỉnh đã vào MST
 
             elif action == 'add_edge_to_mst':
                 # ('add_edge_to_mst', from, to)
@@ -118,7 +118,7 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
         canvas.delete("info_text")
         canvas_height = 600
         edge_list_text = "Edge List: " + ", ".join([f"{u}-{v}" for u, v in edge_list])
-        parent_text = "Parent: " + ", ".join([f"{node}←{par}" for node, par in parent_map.items()])
+        parent_text = "Parent: " + ", ".join([f"{par}→{node}" for node, par in parent_map.items()])
         # dựng lại các tập hợp từ parent_map
         sets = {}
         for node in parent_map:
@@ -171,7 +171,7 @@ class KruskalStrategy(IBaseAlgorithmStrategy):
                         fill='blue'
                     )
 
-        # Vẽ các nút (Nodes)
+        # Vẽ các đỉnh (Nodes)
         for node, (x, y) in graph.weighted_nodes.items():
             oval_id = canvas.create_oval(
                 x - node_radius, y - node_radius,

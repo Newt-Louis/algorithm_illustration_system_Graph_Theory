@@ -116,7 +116,7 @@ class PrimStrategy(IBaseAlgorithmStrategy):
         canvas_height = 600
         visited_text = "Visited: " + ", ".join(sorted(visited))
         pq_text = "Priority Queue: " + ", ".join([f"{u}-{v}" for u, v in pq])
-        parent_text = "Parent: " + ", ".join([f"{child}←{par}" for child, par in parent.items()])
+        parent_text = "Parent: " + ", ".join([f"{par}→{child}" for child, par in parent.items()])
         mst_text = "MST Edges: " + ", ".join([f"{u}-{v}" for u, v in mst_edges_so_far])
 
         canvas.create_text(20, canvas_height - 120, anchor="w",
